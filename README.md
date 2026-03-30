@@ -4,16 +4,23 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1+-red.svg)](https://pytorch.org/)
 
-> **Vocodage WavLM vers audio en français : Ablation des couches et supervision adversariale**
+> **WavLM-to-Audio Vocoding in French: Layer Ablation Study and Adversarial Supervision for Continuous Voice Conversion**  
 > Neural vocoder for reconstructing high-quality French speech from WavLM representations
+
+> **News — March 2026:** This work was **accepted at JEP 2026**.
 
 🎯 **Goal**: Stage 1 foundation for continuous voice conversion in WavLM latent space
 
----
+🔗 **Demo**: [WavLM2Audio Demo](https://hi-paris.github.io/wavlm2audio-demo/)  
+🤗 **Model Card**: [Hugging Face](https://huggingface.co/hi-paris/wavlm-vocoder-french)
 
+---
 ## 🎯 Overview
 
-This repository implements a neural vocoder that reconstructs audio from frozen **WavLM-Base+** representations, specifically trained and evaluated on French speech corpora.
+This repository implements a neural vocoder that reconstructs waveform audio from frozen **WavLM-Base+** representations, specifically trained and evaluated on French speech corpora.
+
+It accompanies our **JEP 2026 accepted paper** and serves as a **stage-1 reconstructive decoder** for future continuous voice conversion in WavLM latent space.
+---
 
 ### Key Features
 
@@ -39,6 +46,16 @@ This repository implements a neural vocoder that reconstructs audio from frozen 
 
 ---
 
+## 📄 Associated paper
+
+**WavLM-to-Audio Vocoding in French: Layer Ablation Study and Adversarial Supervision for Continuous Voice Conversion**  
+*Nassima Ould Ouali, Awais Hussain Sani, Reda Dehak, Eric Moulines*  
+**Accepted at JEP 2026**
+
+This repository contains the codebase associated with the accepted paper, including training, evaluation, ablation, and inference utilities.
+
+---
+
 ## 📊 Results Summary
 
 | Configuration | MCD↓ | Mel-L1↓ | PESQ↑ | STOI↑ | V/UV F1↑ | F0 RMSE↓ | F0 Corr↑ |
@@ -60,7 +77,7 @@ Full ablation results: [`results_ablation_N1to6.csv`](results_ablation_N1to6.csv
 
 ### 1. Installation
 ```bash
-git clone https://github.com/NassimaOULDOUALI/wavlm-vocoder-french.git
+git clone https://github.com/hi-paris/wavlm-vocoder-french.git
 cd wavlm-vocoder-french
 pip install -e .
 ```
@@ -175,7 +192,7 @@ wavlm-vocoder-french/
 python scripts/train.py --config configs/experiments/no_gan.yaml
 python scripts/train.py --config configs/experiments/gan.yaml
 ```
-**Result**: GAN provides 13-24% improvement in spectral fidelity.
+**Result**: GAN provides consistent impovements across spectral, intelligibility and prosodic metrics .
 
 ### Layer Ablation (N=1..12)
 ```bash
@@ -208,11 +225,11 @@ python scripts/analyze_ablation_results.py \
 
 ## 🎓 Citation
 ```bibtex
-@inproceedings{wavlm_vocoder_french_2026,
-  title={Vocodage WavLM vers audio en français : Ablation des couches et supervision adversariale comme fondation pour la conversion de voix continue},
-  author={Nassima OULD OUALI, Awais Hussein Sani, Reda Dehak, Eric Moulines},
-  booktitle={Journées d'Études sur la Parole (JEP)},
-  year={2026}
+@misc{wavlm_vocoder_french_2026,
+  title={WavLM-to-Audio Vocoding in French: Layer Ablation Study and Adversarial Supervision for Continuous Voice Conversion},
+  author={Nassima Ould Ouali and Awais Hussain Sani and Reda Dehak and Eric Moulines},
+  year={2026},
+  note={Accepted at JEP 2026}
 }
 ```
 
