@@ -51,28 +51,36 @@ def save_audio(waveform, save_path, sample_rate=16000):
 
 def process_long_audio(model, audio, chunk_size=320000, overlap=80000, device="cuda"):
     """
-    Process long audio with chunking and overlap.
+    Process long audio with chunking and overlap-add.
 
     Args:
-        model: WavLM2Audio model
-        audio: (T,) waveform
-        chunk_size: Chunk size in samples
+        model: WavLM2Audio model (must already be in eval mode)
+        audio: (T,) waveform tensor
+        chunk_size: Chunk size in samples (default 320000 = 20s @ 16kHz)
         overlap: Overlap size in samples
-        device: Device to run on
+        device: torch.device or str
 
     Returns:
-        (T,) reconstructed waveform
+        (T,) reconstructed waveform on CPU
     """
+    if isinstance(device, str):
+        device = torch.device(device)
+
+    # Ensure eval mode (critical: BatchNorm/GroupNorm behave differently at train time)
+    was_training = model.training
+    model.eval()
+
     if len(audio) <= chunk_size:
-        # Short audio, process directly
         with torch.no_grad():
             audio_batch = audio.unsqueeze(0).to(device)
             output = model(audio_batch)
-            return output.squeeze(0).cpu()
+        if was_training:
+            model.train()
+        return output.squeeze(0).cpu()
 
-    # Process in chunks
+    # Process in chunks with overlap-add
     step = chunk_size - overlap
-    num_chunks = (len(audio) - overlap) // step + 1
+    num_chunks = (len(audio) - overlap + step - 1) // step  # ceiling div
 
     output_chunks = []
 
@@ -82,25 +90,26 @@ def process_long_audio(model, audio, chunk_size=320000, overlap=80000, device="c
 
         chunk = audio[start:end]
 
-        # Pad if needed
+        # Pad last chunk if shorter than chunk_size
         if len(chunk) < chunk_size:
             pad_size = chunk_size - len(chunk)
             chunk = torch.nn.functional.pad(chunk, (0, pad_size))
 
-        # Process chunk
         with torch.no_grad():
             chunk_batch = chunk.unsqueeze(0).to(device)
             output_chunk = model(chunk_batch).squeeze(0).cpu()
 
-        # Crop overlap
+        # Crop overlap margins
+        actual_len = end - start
         if i == 0:
             output_chunks.append(output_chunk[: chunk_size - overlap // 2])
         elif i == num_chunks - 1:
-            output_chunks.append(output_chunk[overlap // 2 : end - start])
+            output_chunks.append(output_chunk[overlap // 2 : actual_len])
         else:
             output_chunks.append(output_chunk[overlap // 2 : chunk_size - overlap // 2])
 
-    # Concatenate
-    output = torch.cat(output_chunks, dim=0)
+    if was_training:
+        model.train()
 
-    return output
+    return torch.cat(output_chunks, dim=0)
+

@@ -72,6 +72,7 @@ class WavLMAdapter(nn.Module):
         self.input_proj = nn.Linear(wavlm_dim, hidden_dim)
 
         # Convolutional blocks with residual connections
+        # GroupNorm instead of BatchNorm1d: stable at batch_size=1 (inference)
         self.conv_blocks = nn.ModuleList()
         for _ in range(num_layers):
             block = nn.ModuleDict(
@@ -79,7 +80,7 @@ class WavLMAdapter(nn.Module):
                     "conv": nn.Conv1d(
                         hidden_dim, hidden_dim, kernel_size, padding=kernel_size // 2
                     ),
-                    "norm": nn.BatchNorm1d(hidden_dim),
+                    "norm": nn.GroupNorm(num_groups=8, num_channels=hidden_dim),
                     "dropout": nn.Dropout(dropout),
                 }
             )
@@ -97,7 +98,7 @@ class WavLMAdapter(nn.Module):
                 nn.init.kaiming_normal_(m.weight, mode="fan_out", nonlinearity="relu")
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
-            elif isinstance(m, nn.BatchNorm1d):
+            elif isinstance(m, (nn.BatchNorm1d, nn.GroupNorm)):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
@@ -123,3 +124,4 @@ class WavLMAdapter(nn.Module):
             x = x + residual
 
         return x
+

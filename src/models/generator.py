@@ -12,11 +12,12 @@ class ResBlock(nn.Module):
         super().__init__()
         padding = (kernel_size - 1) * dilation // 2
         self.conv1 = nn.Conv1d(channels, channels, kernel_size, dilation=dilation, padding=padding)
-        self.norm1 = nn.BatchNorm1d(channels)
+        # GroupNorm: stable at batch_size=1 unlike BatchNorm1d
+        self.norm1 = nn.GroupNorm(num_groups=min(8, channels), num_channels=channels)
         self.conv2 = nn.Conv1d(
             channels, channels, kernel_size, dilation=1, padding=(kernel_size - 1) // 2
         )
-        self.norm2 = nn.BatchNorm1d(channels)
+        self.norm2 = nn.GroupNorm(num_groups=min(8, channels), num_channels=channels)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         residual = x
@@ -95,3 +96,4 @@ class HiFiGANGenerator(nn.Module):
         x = self.output_conv(x)
         peak = x.abs().max(dim=-1, keepdim=True)[0]
         return x / (peak + 1e-8) * 0.95
+
