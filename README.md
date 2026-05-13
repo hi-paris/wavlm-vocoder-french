@@ -15,32 +15,66 @@
 🤗 **Model Card**: [Hugging Face](https://huggingface.co/hi-paris/wavlm-vocoder-french)
 
 ---
+
+## 🚀 Try it now
+
+```bash
+git clone https://github.com/hi-paris/wavlm-vocoder-french.git
+cd wavlm-vocoder-french
+pip install -e .
+
+# Checkpoint downloads automatically from HF Hub
+python scripts/infer.py \
+  --hf_repo hi-paris/wavlm-vocoder-french \
+  --hf_filename checkpoint_step180000_infer.pt \
+  --input_file /path/to/your/audio.wav \
+  --output_dir ./generated \
+  --device cuda
+```
+
+> **Jean Zay / IDRIS users**: compute nodes have no internet access. Download the checkpoint from the login node first:
+> ```bash
+> python -c "
+> from huggingface_hub import hf_hub_download
+> hf_hub_download(repo_id='hi-paris/wavlm-vocoder-french',
+>                 filename='checkpoint_step180000_infer.pt',
+>                 local_dir='./outputs/checkpoints')
+> "
+> # Then use --checkpoint instead of --hf_repo in your SLURM script
+> python scripts/infer.py \
+>   --checkpoint outputs/checkpoints/checkpoint_step180000_infer.pt \
+>   --input_file /path/to/audio.wav \
+>   --output_dir ./generated \
+>   --device cuda
+> ```
+
+---
+
 ## 🎯 Overview
 
 This repository implements a neural vocoder that reconstructs waveform audio from frozen **WavLM-Base+** representations, specifically trained and evaluated on French speech corpora.
 
 It accompanies our **JEP 2026 accepted paper** and serves as a **stage-1 reconstructive decoder** for future continuous voice conversion in WavLM latent space.
----
 
 ### Key Features
 
 - ✅ **WavLM-Base+ Integration**: Frozen 12-layer transformer encoder (768-dim)
-- ✅ **HiFi-GAN Generator**: Progressive upsampling (×320) with multi-receptive field residual blocks
-- ✅ **Layer Ablation Study**: Systematic evaluation of N last layers (N=1...12)
-- ✅ **Learned Layer Fusion**: Weighted combination vs. simple averaging
+- ✅ **HiFi-GAN Generator**: Progressive upsampling (×320) with WeightNorm
+- ✅ **Learned Layer Fusion**: Weighted combination of all WavLM layers
 - ✅ **Adversarial Training**: MPD/MSD discriminators + Feature Matching
 - ✅ **French Corpora**: SIWIS (10.9h) + M-AILABS (160.7h) + Common Voice (66.7h) = 238.3h
 
 ### Architecture
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│  Audio (16kHz) → WavLM-Base+ (frozen) → Layer Selection        │
+│  Audio (16kHz) → WavLM-Base+ (frozen) → Learned Layer Fusion   │
 │       ↓                                                          │
-│  Learned Fusion (α₁h₁ + ... + αₙhₙ) → Adapter (768→256)       │
+│  Weighted Sum (α₁h₁ + ... + α₁₃h₁₃) → Adapter (768→256)       │
 │       ↓                                                          │
 │  HiFi-GAN Generator (×320 upsampling) → Reconstructed Audio    │
 │       ↓                                                          │
-│  [Optional] MPD/MSD Discriminators + Feature Matching          │
+│  MPD/MSD Discriminators + Feature Matching (training only)      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -52,8 +86,6 @@ It accompanies our **JEP 2026 accepted paper** and serves as a **stage-1 reconst
 *Nassima Ould Ouali, Awais Hussain Sani, Reda Dehak, Eric Moulines*  
 **Accepted at JEP 2026**
 
-This repository contains the codebase associated with the accepted paper, including training, evaluation, ablation, and inference utilities.
-
 ---
 
 ## 📊 Results Summary
@@ -64,11 +96,6 @@ This repository contains the codebase associated with the accepted paper, includ
 | **+MPD/MSD+FM** | **8.43** | **1.17** | **1.28** | **0.86** | **0.932** | **7.7** | **0.96** |
 | **Gain** | -13.3% | -24.5% | +15.3% | +16.2% | +6.1% | -23.8% | +15.7% |
 
-> **Key Findings**:
-> - Adversarial supervision (GAN) provides **consistent gains** across all metrics
-> - Layers 7-12 capture most phonetic-prosodic information
-> - Learned layer fusion outperforms fixed single-layer extraction
-
 Full ablation results: [`results_ablation_N1to6.csv`](results_ablation_N1to6.csv) and [`results_FINAL.csv`](results_FINAL.csv)
 
 ---
@@ -76,50 +103,45 @@ Full ablation results: [`results_ablation_N1to6.csv`](results_ablation_N1to6.csv
 ## 🚀 Quick Start
 
 ### 1. Installation
+
 ```bash
 git clone https://github.com/hi-paris/wavlm-vocoder-french.git
 cd wavlm-vocoder-french
 pip install -e .
 ```
 
-For evaluation metrics (PESQ, STOI, F0):
+### 2. Inference
+
 ```bash
-pip install -e ".[eval]"
-```
-
-### 2. Training
-```bash
-# Single GPU — no GAN baseline
-python scripts/train.py --config configs/experiments/no_gan.yaml
-
-# Single GPU — full GAN model
-python scripts/train.py --config configs/experiments/gan.yaml
-
-# Multi-GPU with torchrun
-torchrun --standalone --nproc_per_node=4 scripts/train.py --config configs/experiments/gan.yaml
-```
-
-### 3. Layer Ablation
-```bash
-python scripts/run_ablation.py \
-    --base_config configs/experiments/ablation_layers.yaml \
-    --output_dir outputs/ablation \
-    --layers 1,2,3,4,6,9,12
-```
-
-### 4. Inference
-```bash
+# Option 1 — Automatic download from HF Hub
 python scripts/infer.py \
-    --checkpoint outputs/checkpoints/checkpoint_best.pt \
-    --input_dir /path/to/audio \
-    --output_dir outputs/samples \
-    --num_samples 10
+  --hf_repo hi-paris/wavlm-vocoder-french \
+  --hf_filename checkpoint_step180000_infer.pt \
+  --input_file /path/to/audio.wav \
+  --output_dir ./generated \
+  --device cuda
+
+# Option 2 — Local checkpoint
+python scripts/infer.py \
+  --checkpoint /path/to/checkpoint_step180000_infer.pt \
+  --input_file /path/to/audio.wav \
+  --output_dir ./generated \
+  --device cuda
+
+# Process a full directory
+python scripts/infer.py \
+  --hf_repo hi-paris/wavlm-vocoder-french \
+  --hf_filename checkpoint_step180000_infer.pt \
+  --input_dir /path/to/audio_dir \
+  --output_dir ./generated \
+  --device cuda
 ```
 
-### 5. Evaluation
+### 3. Evaluation
+
 ```bash
 python scripts/eval.py \
-    --checkpoint outputs/checkpoints/checkpoint_best.pt \
+    --checkpoint outputs/checkpoints/checkpoint_step180000_infer.pt \
     --test_dir /path/to/test/audio \
     --output_dir outputs/eval_results
 ```
@@ -127,105 +149,55 @@ python scripts/eval.py \
 ---
 
 ## 📁 Repository Structure
+
 ```
 wavlm-vocoder-french/
 ├── src/
 │   ├── models/
-│   │   ├── adapter.py          # WavLM adapter (768→256) + LayerFusion
-│   │   ├── generator.py        # HiFi-GAN generator (×320 upsampling)
-│   │   ├── discriminator.py    # MPD/MSD discriminators
-│   │   └── wavlm_vocoder.py    # Main vocoder (WavLM + adapter + generator)
-│   ├── losses/
-│   │   ├── reconstruction.py   # L1 + Multi-Scale STFT losses
-│   │   ├── gan.py              # Adversarial + Feature Matching losses
-│   │   └── combined.py         # Combined loss (reconstruction + GAN)
+│   │   ├── models_improved.py  # WavLM2AudioImproved (full model)
+│   │   └── discriminators.py   # MPD/MSD discriminators
 │   ├── data/
-│   │   ├── dataset.py          # AudioDataset (segmentation, normalization)
-│   │   └── collate.py          # Collate function for DataLoader
+│   │   ├── dataset.py          # AudioDataset
+│   │   └── collate.py          # Collate function
 │   ├── trainers/
-│   │   └── trainer.py          # DDP/AMP trainer with checkpointing
+│   │   └── trainer.py          # DDP/AMP trainer
 │   └── utils/
 │       ├── audio.py            # load/save audio, chunked inference
-│       ├── audio_processing.py # Audio processing utilities
 │       ├── checkpoint.py       # Save/load checkpoints
-│       ├── config.py           # YAML config loading with inheritance
+│       ├── config.py           # YAML config loading
 │       └── logging.py          # Logging setup
 ├── configs/
-│   ├── base.yaml               # Base hyperparameters
-│   └── experiments/
-│       ├── no_gan.yaml         # Baseline (spectral losses only)
-│       ├── gan.yaml            # Full model (MPD/MSD + FM)
-│       └── ablation_layers.yaml # Layer sweep experiments
+│   └── base.yaml               # Base hyperparameters
 ├── scripts/
+│   ├── infer.py                # Inference script
 │   ├── train.py                # Training entry point
-│   ├── infer.py                # Inference on audio files
 │   ├── eval.py                 # Evaluation script
-│   ├── run_ablation.py         # Layer ablation study runner
-│   └── analyze_ablation_results.py # Ablation results analysis
+│   └── run_ablation.py         # Layer ablation runner
 ├── tests/
-│   ├── test_models.py          # Model architecture tests
-│   ├── test_losses.py          # Loss function tests
-│   ├── test_dataset.py         # Dataset/collate tests
-│   └── test_training.py        # Training components tests
-├── paper_assets/
-│   └── docs/
-│       ├── figures/            # Ablation plots (PDF/PNG)
-│       └── layer_importance_table.tex
-├── outputs/
-│   ├── samples/sweep_outputs/  # Audio samples at ckpt 160k/180k/200k
-│   └── logs/                   # TensorBoard event files
-├── results_ablation_N1to6.csv  # Ablation study results
-├── results_FINAL.csv           # Final model results
-├── pyproject.toml              # Package config + black/ruff/pytest settings
-├── requirements.txt            # Python dependencies
-├── setup.py                    # Package setup
-├── LICENSE                     # MIT License
-└── CITATION.bib                # BibTeX citation
+├── results_ablation_N1to6.csv
+├── results_FINAL.csv
+├── pyproject.toml
+├── setup.py
+├── LICENSE
+└── CITATION.bib
 ```
 
 ---
 
-## 🔬 Key Experiments
+## 📦 Pretrained Checkpoint
 
-### GAN vs. No-GAN
-```bash
-python scripts/train.py --config configs/experiments/no_gan.yaml
-python scripts/train.py --config configs/experiments/gan.yaml
-```
-**Result**: GAN provides consistent impovements across spectral, intelligibility and prosodic metrics .
+| Model | GAN | MCD↓ | PESQ↑ | Size |
+|-------|-----|------|-------|------|
+| **Best (step 180000)** | ✅ MPD/MSD+FM | **8.43** | **1.28** | 427 MB |
 
-### Layer Ablation (N=1..12)
-```bash
-python scripts/run_ablation.py \
-    --base_config configs/experiments/ablation_layers.yaml \
-    --layers 1,2,3,4,6,9,12
-```
-**Result**: N=9 layers (7-12) is optimal.
-
-### Analyze Ablation Results
-```bash
-python scripts/analyze_ablation_results.py \
-    --output_dir outputs/ablation
-```
-
----
-
-## 📦 Pretrained Checkpoints
-
-| Model | Layers | GAN | MCD | PESQ |
-|-------|--------|-----|-----|------|
-| Baseline | 12 | ❌ | 9.72 | 1.11 |
-| **Best (N=9)** | 9 | ✅ | **8.43** | **1.28** |
-| Lightweight (N=6) | 6 | ✅ | 8.89 | 1.21 |
-
-> Checkpoints not included in this repository due to size (~1.4GB each).
-> See [`outputs/samples/sweep_outputs/`](outputs/samples/sweep_outputs/) for audio samples.
+Download: [hi-paris/wavlm-vocoder-french](https://huggingface.co/hi-paris/wavlm-vocoder-french)
 
 ---
 
 ## 🎓 Citation
+
 ```bibtex
-@misc{wavlm_vocoder_french_2026,
+@misc{ouldouali2026wavlm2audiofr,
   title={WavLM-to-Audio Vocoding in French: Layer Ablation Study and Adversarial Supervision for Continuous Voice Conversion},
   author={Nassima Ould Ouali and Awais Hussain Sani and Reda Dehak and Eric Moulines},
   year={2026},
