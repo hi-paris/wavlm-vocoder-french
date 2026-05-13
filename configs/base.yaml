@@ -4,13 +4,13 @@
 model:
   wavlm_model_name: "microsoft/wavlm-base-plus"
   hidden_dim: 256
-  num_adapter_layers: 3
+  num_adapter_layers: 6   # Must match published checkpoint (HF: checkpoint_step180000.pt)
   kernel_size: 7
   freeze_wavlm: true
   dropout: 0.1
   
   # Layer fusion
-  num_layers: 12  # Use all 12 layers
+  num_layers: 9   # N=9 is optimal per ablation study (layers 4-12)
   fusion_type: "learned"  # or "average"
 
 loss:
@@ -65,3 +65,4 @@ logging:
   tensorboard: true
   wandb: false
   wandb_project: "wavlm-vocoder"
+
