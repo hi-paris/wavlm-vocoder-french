@@ -1,0 +1,51 @@
+message: "If you use this software, please cite our JEP 2026 paper (see preferred-citation)."
+title: "WavLM Vocoder for French"
+abstract: "Neural vocoder reconstructing high-quality French speech from frozen WavLM-Base+ representations. Stage-1 foundation for continuous voice conversion in WavLM latent space."
+type: software
+authors:
+  - family-names: "Ould Ouali"
+    given-names: "Nassima"
+    affiliation: "Hi! PARIS, Institut Polytechnique de Paris"
+    email: "nassima.ould-ouali@ip-paris.fr"
+  - family-names: "Hussain Sani"
+    given-names: "Awais"
+    affiliation: "Hi! PARIS, Institut Polytechnique de Paris"
+  - family-names: "Moulines"
+    given-names: "Eric"
+    affiliation: "EPITA"
+  - family-names: "Dehak"
+    given-names: "Reda"
+    affiliation: "EPITA"
+license: MIT
+repository-code: "https://github.com/hi-paris/wavlm-vocoder-french"
+url: "https://huggingface.co/hi-paris/wavlm-vocoder-french"
+keywords:
+  - neural vocoder
+  - WavLM
+  - voice conversion
+  - French speech synthesis
+  - HiFi-GAN
+  - self-supervised learning
+preferred-citation:
+  type: conference-paper
+  title: "Vocodage WavLM vers audio en français : Ablation des couches et supervision adversariale comme fondation pour la conversion de voix continue"
+  authors:
+    - family-names: "Ould Ouali"
+      given-names: "Nassima"
+    - family-names: "Hussain Sani"
+      given-names: "Awais"
+    - family-names: "Moulines"
+      given-names: "Eric"
+    - family-names: "Dehak"
+      given-names: "Reda"
+  collection-title: "Actes des 36èmes Journées d'Études sur la Parole (JEP 2026)"
+  conference:
+    name: "36èmes Journées d'Études sur la Parole (JEP 2026)"
+    city: "Montpellier"
+    country: "FR"
+  year: 2026
+  month: 6
+  start: 454
+  end: 464
+  doi: "10.21437/JEP.2026-43"
+  url: "https://www.isca-archive.org/tmp/jep_2026/ouldouali26_jep.pdf"
