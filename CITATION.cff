@@ -1,3 +1,4 @@
+cff-version: 1.2.0
 message: "If you use this software, please cite our JEP 2026 paper (see preferred-citation)."
 title: "WavLM Vocoder for French"
 abstract: "Neural vocoder reconstructing high-quality French speech from frozen WavLM-Base+ representations. Stage-1 foundation for continuous voice conversion in WavLM latent space."
