@@ -232,3 +232,21 @@ For questions, open an issue or contact: **nassima.ould-ouali@ip-paris.fr**
 - [x] Stage 1: Reconstruction vocoder (this work)
 - [ ] Stage 2: Voice conversion in WavLM latent space
 - [ ] Stage 3: Diffusion/Flow-based manipulation
+
+## 🎓 Citation
+
+If you use this work, please cite our JEP 2026 paper:
+
+```bibtex
+@inproceedings{ouldouali2026wavlm,
+  author    = {Ould Ouali, Nassima and Hussain Sani, Awais and Moulines, Eric and Dehak, Reda},
+  title     = {Vocodage {WavLM} vers audio en français : Ablation des couches et supervision adversariale comme fondation pour la conversion de voix continue},
+  booktitle = {Actes des 36èmes Journées d'Études sur la Parole (JEP 2026)},
+  year      = {2026},
+  month     = jun,
+  address   = {Montpellier, France},
+  pages     = {454--464},
+  doi       = {10.21437/JEP.2026-43},
+  url       = {https://www.isca-archive.org/tmp/jep_2026/ouldouali26_jep.pdf}
+}
+```
