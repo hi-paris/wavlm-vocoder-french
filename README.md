@@ -84,7 +84,7 @@ It accompanies our **JEP 2026 accepted paper** and serves as a **stage-1 reconst
 
 **WavLM-to-Audio Vocoding in French: Layer Ablation Study and Adversarial Supervision for Continuous Voice Conversion**  
 *Nassima Ould Ouali, Awais Hussain Sani, Reda Dehak, Eric Moulines*  
-**Accepted at JEP 2026**
+** JEP 2026, Montpellier, France, pp. 454–464. [DOI: 10.21437/JEP.2026-43]**
 
 ---
 
