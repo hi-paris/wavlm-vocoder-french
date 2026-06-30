@@ -8,6 +8,7 @@
 > Neural vocoder for reconstructing high-quality French speech from WavLM representations
 
 > **News — June 2026:** 🎉 The paper is now **published** in the JEP 2026 proceedings — [📄 read it here](https://www.isca-archive.org/tmp/jep_2026/ouldouali26_jep.pdf).
+
 > **News — March 2026:** This work was **accepted at JEP 2026**.
 
 🎯 **Goal**: Stage 1 foundation for continuous voice conversion in WavLM latent space
