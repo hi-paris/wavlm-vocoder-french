@@ -7,6 +7,7 @@
 > **WavLM-to-Audio Vocoding in French: Layer Ablation Study and Adversarial Supervision for Continuous Voice Conversion**  
 > Neural vocoder for reconstructing high-quality French speech from WavLM representations
 
+> **News — June 2026:** 🎉 The paper is now **published** in the JEP 2026 proceedings — [📄 read it here](https://www.isca-archive.org/tmp/jep_2026/ouldouali26_jep.pdf).
 > **News — March 2026:** This work was **accepted at JEP 2026**.
 
 🎯 **Goal**: Stage 1 foundation for continuous voice conversion in WavLM latent space
@@ -83,10 +84,11 @@ It accompanies our **JEP 2026 accepted paper** and serves as a **stage-1 reconst
 ## 📄 Associated paper
 
 **WavLM-to-Audio Vocoding in French: Layer Ablation Study and Adversarial Supervision for Continuous Voice Conversion**  
-*Nassima Ould Ouali, Awais Hussain Sani, Reda Dehak, Eric Moulines*  
-** JEP 2026, Montpellier, France, pp. 454–464. [DOI: 10.21437/JEP.2026-43]**
+*Nassima Ould Ouali, Awais Hussain Sani, Eric Moulines, Reda Dehak*  
+**JEP 2026, Montpellier, France, pp. 454–464.** — [📄 Read the paper](https://www.isca-archive.org/tmp/jep_2026/ouldouali26_jep.pdf) · DOI: 10.21437/JEP.2026-43
 
 ---
+
 
 ## 📊 Results Summary
 
@@ -191,20 +193,6 @@ wavlm-vocoder-french/
 | **Best (step 180000)** | ✅ MPD/MSD+FM | **8.43** | **1.28** | 427 MB |
 
 Download: [hi-paris/wavlm-vocoder-french](https://huggingface.co/hi-paris/wavlm-vocoder-french)
-
----
-
-## 🎓 Citation
-
-```bibtex
-@misc{ouldouali2026wavlm2audiofr,
-  title={WavLM-to-Audio Vocoding in French: Layer Ablation Study and Adversarial Supervision for Continuous Voice Conversion},
-  author={Nassima Ould Ouali and Awais Hussain Sani and Reda Dehak and Eric Moulines},
-  year={2026},
-  note={Accepted at JEP 2026}
-}
-```
-
 ---
 
 ## 📜 License
